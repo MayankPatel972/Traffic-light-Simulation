@@ -2,7 +2,6 @@
 
 A visually engaging traffic light simulation built with vanilla HTML, CSS, and JavaScript.
 
-![Traffic Light Demo GIF](https://your-link-to-a-gif-or-screenshot.com)
 
 ## ✨ Key Features
 
@@ -19,5 +18,5 @@ A visually engaging traffic light simulation built with vanilla HTML, CSS, and J
 
 ## 🚀 How to Run
 
--   Click on the below link
+-   Click on the link
 ---> https://mayankpatel972.github.io/Traffic-light-Simulation/
