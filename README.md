@@ -1,2 +1,2 @@
 # Traffic-light-Simulation
-let see
+tl simlution using basic frontend html,css, js
