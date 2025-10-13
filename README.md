@@ -12,9 +12,9 @@ A visually engaging traffic light simulation built with vanilla HTML, CSS, and J
 
 ## 🛠️ Tech Stack
 
--   **HTML5**
--   **CSS3** (Flexbox, Gradients, Box-Shadows)
--   **JavaScript (ES6)** (DOM Manipulation, `setInterval`)
+-   **HTML**
+-   **CSS** (Flexbox, Gradients, Box-Shadows)
+-   **JavaScript** (DOM Manipulation, `setInterval`)
 
 ## 🚀 How to Run
 
