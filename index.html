@@ -1,1 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Light System</title>
+    
+    <!-- Link to your CSS file -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Link for the digital clock font -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
 
+</head>
+<body>
+
+    <div class="container">
+        <!-- Traffic Light Housing -->
+        <div class="traffic-light-body">
+            <div class="lights-container">
+                <div id="red" class="light red"></div>
+                <div id="yellow" class="light yellow"></div>
+                <div id="green" class="light green"></div>
+            </div>
+        </div>
+        <!-- Traffic Light Pole -->
+        <div class="pole"></div>
+        <!-- Timer Display -->
+        <div class="timer-display">
+             <span id="status" class="status-text">STOP</span>: <span id="timer">10</span>s
+        </div>
+    </div>
+
+    <!-- Link to your JavaScript file (No changes needed here) -->
+    <script src="script.js"></script>
+    
+</body>
+</html>

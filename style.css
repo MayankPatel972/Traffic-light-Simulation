@@ -1,0 +1,104 @@
+/* A more stylized, human-designed feel for the traffic light */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap');
+
+body {
+    /* New gradient background for a dusk/night sky feel */
+    background: linear-gradient(to bottom, #0f172a, #1e293b);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Roboto', sans-serif;
+    margin: 0;
+    overflow: hidden; /* Hide any extra scrollbars */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0; /* Removing the gap to connect pole and light housing */
+}
+
+/* Traffic light housing with a more metallic, realistic look */
+.traffic-light-body {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 20px;
+    border: 2px solid #111;
+    /* A more complex shadow to give it depth and lift it off the page */
+    box-shadow: 
+        inset 0 4px 5px rgba(255, 255, 255, 0.1),
+        0 10px 20px rgba(0, 0, 0, 0.5); 
+}
+
+.lights-container {
+     display: flex;
+     flex-direction: column;
+     gap: 20px; /* Slightly more spacing between lights */
+}
+
+/* The light circles - adding an inner shadow to look more like a lens */
+.light {
+    width: 8rem;
+    height: 8rem;
+    background-color: #1a1a1a; /* Darker 'off' state */
+    border-radius: 50%;
+    border: 1px solid #000;
+    transition: all 0.3s ease-in-out;
+    box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.5); /* Inner shadow for a lens effect */
+}
+
+/* Active light states with a softer, more realistic glow */
+.red.active {
+    background-color: #ff1a1a;
+    box-shadow: 
+        inset 0 2px 5px rgba(0,0,0,0.3),
+        0 0 15px 5px #ff1a1a, 
+        0 0 35px 15px rgba(255, 26, 26, 0.5); /* Multi-layered glow */
+}
+.yellow.active {
+    background-color: #ffcc00;
+    box-shadow: 
+        inset 0 2px 5px rgba(0,0,0,0.3),
+        0 0 15px 5px #ffcc00, 
+        0 0 35px 15px rgba(255, 204, 0, 0.5);
+}
+.green.active {
+    background-color: #39ff14; /* Brighter, more electric green */
+    box-shadow: 
+        inset 0 2px 5px rgba(0,0,0,0.3),
+        0 0 15px 5px #39ff14, 
+        0 0 35px 15px rgba(57, 255, 20, 0.5);
+}
+
+/* Traffic light pole - longer and with a metallic gradient */
+.pole {
+    width: 35px;
+    height: 280px; /* --- POLE IS NOW LONGER --- */
+    background: linear-gradient(to right, #4a4a4a, #6e6e6e);
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.3);
+    border-left: 2px solid #333;
+    border-right: 2px solid #333;
+}
+
+/* Timer display with a digital LCD look */
+.timer-display {
+    margin-top: 25px;
+    padding: 12px 24px;
+    background-color: #0c0f0a; /* Dark green LCD background */
+    border-radius: 8px;
+    color: #39ff14; /* Electric green text */
+    font-size: 2.5rem;
+    font-family: 'Orbitron', sans-serif; /* Digital-style font */
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    border: 2px solid #333;
+    text-shadow: 0 0 5px #39ff14; /* Text glow to mimic an LCD screen */
+}
+
+/* Status text styling to match the new LCD theme */
+.status-text.red { color: #ff1a1a; text-shadow: 0 0 5px #ff1a1a; }
+.status-text.green { color: #39ff14; text-shadow: 0 0 5px #39ff14; }
+.status-text.yellow { color: #ffcc00; text-shadow: 0 0 5px #ffcc00; }
