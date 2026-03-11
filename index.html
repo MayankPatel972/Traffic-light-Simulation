@@ -5,6 +5,200 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Traffic Light System</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --red: #ff2b2b; --yellow: #ffd000; --green: #00ff88; --border: #1e2538; }
+    body {
+      background: #060810; min-height: 100vh; display: flex; align-items: center;
+      justify-content: center; font-family: 'Share Tech Mono', monospace;
+      overflow-x: hidden; position: relative;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(0,200,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px; animation: gridMove 8s linear infinite; pointer-events: none; z-index: 0;
+    }
+    @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 60px; } }
+    .glow-blob { position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.12; pointer-events: none; z-index: 0; }
+    .glow-blob.a { width: 500px; height: 500px; top: -100px; left: -100px; background: #0088ff; }
+    .glow-blob.b { width: 400px; height: 400px; bottom: -80px; right: -80px; background: #8800ff; }
+    .scene { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; padding: 40px 20px; }
+    .label { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.35em; color: rgba(255,255,255,0.2); margin-bottom: 28px; }
+    .housing {
+      background: linear-gradient(160deg, #1a1f30, #0d1018); border: 1px solid var(--border);
+      border-radius: 28px; padding: 28px 32px; position: relative;
+      box-shadow: 0 0 0 1px #0a0d16, 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+    .housing::before, .housing::after { content: '●'; font-size: 6px; color: #2a3050; position: absolute; left: 50%; transform: translateX(-50%); }
+    .housing::before { top: 14px; } .housing::after { bottom: 14px; }
+    .lights-wrap { display: flex; flex-direction: column; gap: 22px; }
+    .light-slot {
+      width: 110px; height: 110px; border-radius: 50%; background: #080b12; border: 2px solid #181e2e;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: inset 0 4px 12px rgba(0,0,0,0.7); transition: all 0.25s ease; position: relative;
+    }
+    .light-slot::before { content: ''; position: absolute; inset: 8px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.04); }
+    .light-slot .core { width: 68px; height: 68px; border-radius: 50%; background: #0a0e18; transition: all 0.3s ease; }
+    .light-slot.red-on .core { background: var(--red); box-shadow: 0 0 20px 6px var(--red), 0 0 60px 20px rgba(255,43,43,0.4); }
+    .light-slot.red-on { border-color: rgba(255,43,43,0.4); box-shadow: inset 0 4px 12px rgba(0,0,0,0.5), 0 0 30px rgba(255,43,43,0.2); }
+    .light-slot.yellow-on .core { background: var(--yellow); box-shadow: 0 0 20px 6px var(--yellow), 0 0 60px 20px rgba(255,208,0,0.4); animation: pulse 0.8s ease-in-out infinite; }
+    .light-slot.yellow-on { border-color: rgba(255,208,0,0.4); box-shadow: inset 0 4px 12px rgba(0,0,0,0.5), 0 0 30px rgba(255,208,0,0.2); }
+    .light-slot.green-on .core { background: var(--green); box-shadow: 0 0 20px 6px var(--green), 0 0 60px 20px rgba(0,255,136,0.4); }
+    .light-slot.green-on { border-color: rgba(0,255,136,0.4); box-shadow: inset 0 4px 12px rgba(0,0,0,0.5), 0 0 30px rgba(0,255,136,0.2); }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .pole { width: 28px; height: 180px; background: linear-gradient(to right, #0e1118, #1e2438, #0e1118); border-left: 1px solid #1a2030; border-right: 1px solid #1a2030; }
+    .base { width: 120px; height: 12px; background: linear-gradient(to right, transparent, #1a2030, transparent); border-radius: 50%; margin-bottom: 32px; }
+    .info-panel { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; max-width: 300px; }
+    .status-row { display: flex; align-items: center; gap: 16px; }
+    .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #333; transition: all 0.3s ease; flex-shrink: 0; }
+    .status-label { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; letter-spacing: 0.12em; color: rgba(255,255,255,0.15); transition: all 0.3s ease; }
+    .status-label.red    { color: var(--red);    text-shadow: 0 0 20px rgba(255,43,43,0.6); }
+    .status-label.yellow { color: var(--yellow); text-shadow: 0 0 20px rgba(255,208,0,0.6); }
+    .status-label.green  { color: var(--green);  text-shadow: 0 0 20px rgba(0,255,136,0.6); }
+    .status-dot.red    { background: var(--red);    box-shadow: 0 0 8px var(--red); }
+    .status-dot.yellow { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+    .status-dot.green  { background: var(--green);  box-shadow: 0 0 8px var(--green); }
+    .timer-wrap { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    .timer-row { display: flex; justify-content: space-between; align-items: baseline; }
+    .timer-tag { font-size: 0.65rem; letter-spacing: 0.2em; color: rgba(255,255,255,0.2); text-transform: uppercase; }
+    .timer-value { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: rgba(255,255,255,0.5); transition: color 0.3s; }
+    .timer-value.red { color: var(--red); } .timer-value.yellow { color: var(--yellow); } .timer-value.green { color: var(--green); }
+    .progress-track { width: 100%; height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+    .progress-bar { height: 100%; border-radius: 2px; transition: width 1s linear, background 0.3s; width: 100%; }
+    .progress-bar.red { background: var(--red); } .progress-bar.yellow { background: var(--yellow); } .progress-bar.green { background: var(--green); }
+    .controls { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; margin-top: 8px; }
+    .controls-label { font-size: 0.6rem; letter-spacing: 0.25em; color: rgba(255,255,255,0.18); text-transform: uppercase; }
+    .btn-row { display: flex; gap: 12px; }
+    .btn { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: 0.15em; padding: 10px 20px; border-radius: 8px; border: 1px solid transparent; cursor: pointer; background: #10141f; transition: all 0.2s ease; }
+    .btn:hover { transform: translateY(-2px); } .btn:active { transform: translateY(0); }
+    .btn-red    { border-color: rgba(255,43,43,0.4);  color: var(--red); }
+    .btn-yellow { border-color: rgba(255,208,0,0.4);  color: var(--yellow); }
+    .btn-green  { border-color: rgba(0,255,136,0.4);  color: var(--green); }
+    .btn-red:hover    { background: rgba(255,43,43,0.15);  box-shadow: 0 0 16px rgba(255,43,43,0.3); }
+    .btn-yellow:hover { background: rgba(255,208,0,0.15);  box-shadow: 0 0 16px rgba(255,208,0,0.3); }
+    .btn-green:hover  { background: rgba(0,255,136,0.15);  box-shadow: 0 0 16px rgba(0,255,136,0.3); }
+    .btn-auto { width: 100%; border-color: rgba(100,140,255,0.35); color: rgba(100,160,255,0.7); font-size: 0.85rem; padding: 8px 0; }
+    .btn-auto:hover { background: rgba(100,140,255,0.1); color: rgba(130,180,255,0.9); }
+    .btn-auto.active { background: rgba(100,140,255,0.15); border-color: rgba(100,140,255,0.6); color: rgba(150,200,255,1); box-shadow: 0 0 20px rgba(100,140,255,0.25); }
+    .sig { margin-top: 32px; font-size: 0.6rem; letter-spacing: 0.3em; color: rgba(255,255,255,0.08); text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="glow-blob a"></div>
+  <div class="glow-blob b"></div>
+  <div class="scene">
+    <div class="label">Traffic Control Unit</div>
+    <div class="housing">
+      <div class="lights-wrap">
+        <div class="light-slot" id="slot-red"><div class="core"></div></div>
+        <div class="light-slot" id="slot-yellow"><div class="core"></div></div>
+        <div class="light-slot" id="slot-green"><div class="core"></div></div>
+      </div>
+    </div>
+    <div class="pole"></div>
+    <div class="base"></div>
+    <div class="info-panel">
+      <div class="status-row">
+        <div class="status-dot" id="status-dot"></div>
+        <div class="status-label" id="status-label">—</div>
+      </div>
+      <div class="timer-wrap">
+        <div class="timer-row">
+          <span class="timer-tag">Time Remaining</span>
+          <span class="timer-value" id="timer-value">—</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <span class="controls-label">Manual Override</span>
+        <div class="btn-row">
+          <button class="btn btn-red"    id="btn-red">RED</button>
+          <button class="btn btn-yellow" id="btn-yellow">YELLOW</button>
+          <button class="btn btn-green"  id="btn-green">GREEN</button>
+        </div>
+        <button class="btn btn-auto active" id="auto-btn">⟳ AUTO</button>
+      </div>
+    </div>
+    <div class="sig">Signal Management System v2.0</div>
+  </div>
+  <script>
+    var lights = [
+      { id: 'slot-red',    colorClass: 'red-on',    label: 'STOP', labelClass: 'red',    duration: 20 },
+      { id: 'slot-green',  colorClass: 'green-on',  label: 'GO',   labelClass: 'green',  duration: 10 },
+      { id: 'slot-yellow', colorClass: 'yellow-on', label: 'WAIT', labelClass: 'yellow', duration: 5  }
+    ];
+    var slotEls     = lights.map(function(l) { return document.getElementById(l.id); });
+    var statusDot   = document.getElementById('status-dot');
+    var statusLbl   = document.getElementById('status-label');
+    var timerVal    = document.getElementById('timer-value');
+    var progressBar = document.getElementById('progress-bar');
+    var autoBtn     = document.getElementById('auto-btn');
+    var currentIndex = 0, countdownInterval = null, autoTimeout = null, isAuto = true;
+
+    function activate(index) {
+      if (countdownInterval) clearInterval(countdownInterval);
+      if (autoTimeout) clearTimeout(autoTimeout);
+      slotEls.forEach(function(el) { el.className = 'light-slot'; });
+      var light = lights[index];
+      currentIndex = index;
+      slotEls[index].classList.add(light.colorClass);
+      statusDot.className   = 'status-dot '   + light.labelClass;
+      statusLbl.className   = 'status-label ' + light.labelClass;
+      statusLbl.textContent = light.label;
+      timerVal.className    = 'timer-value '  + light.labelClass;
+      progressBar.className = 'progress-bar ' + light.labelClass;
+      var timeLeft = light.duration;
+      timerVal.textContent    = timeLeft + 's';
+      progressBar.style.width = '100%';
+      countdownInterval = setInterval(function() {
+        timeLeft--;
+        timerVal.textContent    = timeLeft + 's';
+        progressBar.style.width = ((timeLeft / light.duration) * 100) + '%';
+        if (timeLeft <= 0) clearInterval(countdownInterval);
+      }, 1000);
+      if (isAuto) {
+        autoTimeout = setTimeout(function() {
+          currentIndex = (currentIndex + 1) % lights.length;
+          activate(currentIndex);
+        }, light.duration * 1000);
+      }
+    }
+
+    document.getElementById('btn-red').onclick = function() {
+      isAuto = false; autoBtn.classList.remove('active'); activate(0);
+    };
+    document.getElementById('btn-green').onclick = function() {
+      isAuto = false; autoBtn.classList.remove('active'); activate(1);
+    };
+    document.getElementById('btn-yellow').onclick = function() {
+      isAuto = false; autoBtn.classList.remove('active'); activate(2);
+    };
+    autoBtn.onclick = function() {
+      isAuto = !isAuto;
+      autoBtn.classList.toggle('active', isAuto);
+      if (isAuto) {
+        var remaining = parseInt(timerVal.textContent) || lights[currentIndex].duration;
+        autoTimeout = setTimeout(function() {
+          currentIndex = (currentIndex + 1) % lights.length;
+          activate(currentIndex);
+        }, remaining * 1000);
+      } else {
+        if (autoTimeout) clearTimeout(autoTimeout);
+      }
+    };
+
+    activate(0);
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traffic Light System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -60,3 +254,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
