@@ -1,3 +1,89 @@
+const lights = [
+  { id: 'slot-red',    colorClass: 'red-on',    label: 'STOP', labelClass: 'red',    duration: 20 },
+  { id: 'slot-green',  colorClass: 'green-on',  label: 'GO',   labelClass: 'green',  duration: 10 },
+  { id: 'slot-yellow', colorClass: 'yellow-on', label: 'WAIT', labelClass: 'yellow', duration: 5  },
+];
+
+const slotEls    = lights.map(l => document.getElementById(l.id));
+const statusDot  = document.getElementById('status-dot');
+const statusLbl  = document.getElementById('status-label');
+const timerVal   = document.getElementById('timer-value');
+const progressBar = document.getElementById('progress-bar');
+const autoBtn    = document.getElementById('auto-btn');
+
+let currentIndex     = 0;
+let countdownInterval = null;
+let autoTimeout      = null;
+let isAuto           = true;
+
+// â”€â”€ Core: activate a light by index â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function activate(index, fromAuto = false) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  if (autoTimeout)       clearTimeout(autoTimeout);
+
+  slotEls.forEach(el => el.className = 'light-slot');
+
+  const light  = lights[index];
+  currentIndex = index;
+
+  slotEls[index].classList.add(light.colorClass);
+
+  statusDot.className  = 'status-dot '   + light.labelClass;
+  statusLbl.className  = 'status-label ' + light.labelClass;
+  statusLbl.textContent = light.label;
+
+  timerVal.className    = 'timer-value '  + light.labelClass;
+  progressBar.className = 'progress-bar ' + light.labelClass;
+
+  let timeLeft = light.duration;
+  timerVal.textContent  = timeLeft + 's';
+  progressBar.style.width = '100%';
+
+  countdownInterval = setInterval(() => {
+    timeLeft--;
+    timerVal.textContent = timeLeft + 's';
+    progressBar.style.width = ((timeLeft / light.duration) * 100) + '%';
+    if (timeLeft <= 0) clearInterval(countdownInterval);
+  }, 1000);
+
+  // Schedule next only if in auto mode
+  if (isAuto) {
+    autoTimeout = setTimeout(() => {
+      currentIndex = (currentIndex + 1) % lights.length;
+      activate(currentIndex, true);
+    }, light.duration * 1000);
+  }
+}
+
+// â”€â”€ Manual override button â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function manualActivate(index) {
+  isAuto = false;
+  autoBtn.classList.remove('active');
+  activate(index, false);
+}
+
+// â”€â”€ Toggle auto mode â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function toggleAuto() {
+  isAuto = !isAuto;
+  autoBtn.classList.toggle('active', isAuto);
+
+  if (isAuto) {
+    // Resume auto from current light
+    if (autoTimeout) clearTimeout(autoTimeout);
+    const light = lights[currentIndex];
+    const remaining = parseInt(timerVal.textContent) || light.duration;
+    autoTimeout = setTimeout(() => {
+      currentIndex = (currentIndex + 1) % lights.length;
+      activate(currentIndex, true);
+    }, remaining * 1000);
+  } else {
+    if (autoTimeout) clearTimeout(autoTimeout);
+  }
+}
+
+// â”€â”€ Init â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+autoBtn.classList.add('active');
+activate(0, true);
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -352,3 +438,4 @@ body::before {
   50%       { opacity: 0.6; }
 }
 .light-slot.yellow-on .core { animation: pulse 0.8s ease-in-out infinite; }
+
