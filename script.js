@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+/*document.addEventListener('DOMContentLoaded', () => {
 
 const lights = [
   { id: 'slot-red',    colorClass: 'red-on',    label: 'STOP', labelClass: 'red',    duration: 20 },
@@ -86,3 +86,4 @@ autoBtn.classList.add('active');
 activate(0);
 
 });
+*/
